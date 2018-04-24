@@ -1,0 +1,116 @@
+<html>
+    <head>
+        <meta charset="GBK">
+        <style>
+            div
+            {
+                padding: 0.5rem 0.3rem;
+            }
+            .input
+            {
+                padding: 0.8rem 0.3rem;
+            }
+            img
+            {
+                max-width: 100%
+            }
+            [type=text]
+            {
+                padding: 0.7rem 0.5rem 0.3rem 0.3rem;
+            }
+            .pointXYZ
+            {
+                display: inline;
+                padding: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper-right">
+            <div>
+                <h1>按压时间</h3>
+            </div>
+            <div>
+                <form method="post">
+                    <div class="input">
+                        <input type="text" id="text" value="500" onchange="updateText()">
+                    </div>
+                    <div class="input">
+                        <input type="range" name="Time" id="range" value=500 onchange="updateRange()" min="150" max="950" >
+                    </div>
+                    <div class="input">
+                        <input type="submit">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="wrapper-right">
+            <canvas id="screenshow" width="1080" height="1920">
+                <img id="screenpic" src="screen.png">
+            </canvas>
+            <div>
+                <div class="pointXYZ" id="srcX">0</div>,
+                <div class="pointXYZ" id="srcY">0</div>
+            </div>
+            <div>
+                <div class="pointXYZ" id="destX">0</div>,
+                <div class="pointXYZ" id="destY">0</div>
+            </div>
+            <div id="path">0</div>
+            <button id="reset">清零</button>
+        </div>
+        <script>
+            var canvas  = document.getElementById("screenshow"),
+                cxt     = document.getElementById("screenshow").getContext("2d"),
+                img     = document.getElementById("screenpic")
+                cvsLeft = canvas.offsetLeft,
+                cvsTop  = canvas.offsetTop,
+                cnt     = 0;
+            cxt.drawImage(img,0,0);//submit之后的刷新，canvas里的image不刷新
+            var testimg = new Image;//用这种方式就可以了？
+            testimg.src = "screen.png"
+            testimg.onload = function() {
+                cxt.drawImage(testimg,0,0)
+            }
+            canvas.addEventListener('click', function(event) {
+                var x = event.pageX - cvsLeft,
+                    y = event.pageY - cvsTop
+                switch(cnt) {
+                    case 0:
+                        document.getElementById("srcX").innerHTML = x
+                        document.getElementById("srcY").innerHTML = y
+                        break;
+                    case 1:
+                        document.getElementById("destX").innerHTML = x
+                        document.getElementById("destY").innerHTML = y
+                        var srcx = document.getElementById("srcX").innerHTML
+                        var srcy = document.getElementById("srcY").innerHTML
+                        var distance = Math.sqrt((x-srcx)**2+(y-srcy)**2)
+                        document.getElementById("path").innerHTML  = distance
+                        var jump_time = (distance + 4.2)/0.735//斜率略高了
+                        document.getElementById("range").value = document.getElementById("text").value = parseInt(jump_time)
+                        break;
+                    default:
+                        console.log(x+','+y)
+                }
+                cnt = cnt + 1;
+            })
+            var resetBtn = document.getElementById("reset")
+            resetBtn.onclick = function() {
+                cnt = 0
+            }
+        </script>
+        <script>
+            function updateRange () {
+                document.getElementById("text").value = document.getElementById("range").value
+            }
+            function updateText () {
+                if (document.getElementById("text").value > 950 || document.getElementById("text").value < 150) {
+                    alert("超出范围")
+                    document.getElementById("text").value = 500
+                }
+                document.getElementById("range").value = document.getElementById("text").value
+            }
+        </script>
+    </body>
+</html>
